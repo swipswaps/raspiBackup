@@ -61,11 +61,11 @@ IS_HOTFIX=$(( ! $(grep -iq hotfix <<< "$VERSION"; echo $?) ))
 MYSELF=${0##*/}
 MYNAME=${MYSELF%.*}
 
-GIT_DATE="$Date: 2020-05-24 10:36:54 +0200$"
+GIT_DATE="$Date: 2020-05-25 12:38:04 +0200$"
 GIT_DATE_ONLY=${GIT_DATE/: /}
 GIT_DATE_ONLY=$(cut -f 2 -d ' ' <<< $GIT_DATE)
 GIT_TIME_ONLY=$(cut -f 3 -d ' ' <<< $GIT_DATE)
-GIT_COMMIT="$Sha1: 846dfbf$"
+GIT_COMMIT="$Sha1: d209c5e$"
 GIT_COMMIT_ONLY=$(cut -f 2 -d ' ' <<< $GIT_COMMIT | sed 's/\$//')
 
 GIT_CODEVERSION="$MYSELF $VERSION, $GIT_DATE_ONLY/$GIT_TIME_ONLY - $GIT_COMMIT_ONLY"
@@ -3211,7 +3211,15 @@ function masqueradeSensitiveInfoInLog() {
 		sed -i -E "s/$EMAIL/${m}/g" $LOG_FILE
 	fi
 
-	# email parms usually also contain eMails
+	# sender email
+
+	if [[ -n "$SENDER_EMAIL" ]]; then
+		logItem "Masquerading sender eMail"
+		m="$(masquerade "$SENDER_EMAIL")"
+		sed -i -E "s/$SENDER_EMAIL/${m}/g" $LOG_FILE
+	fi
+
+	# email parms usually also contain eMails and passwords
 
 	if [[ -n "$EMAIL_PARMS" ]]; then
 		logItem "Masquerading eMail parameters"
