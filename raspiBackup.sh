@@ -61,11 +61,11 @@ IS_HOTFIX=$(( ! $(grep -iq hotfix <<< "$VERSION"; echo $?) ))
 MYSELF=${0##*/}
 MYNAME=${MYSELF%.*}
 
-GIT_DATE="$Date: 2020-05-25 12:38:04 +0200$"
+GIT_DATE="$Date: 2020-05-31 20:34:39 +0200$"
 GIT_DATE_ONLY=${GIT_DATE/: /}
 GIT_DATE_ONLY=$(cut -f 2 -d ' ' <<< $GIT_DATE)
 GIT_TIME_ONLY=$(cut -f 3 -d ' ' <<< $GIT_DATE)
-GIT_COMMIT="$Sha1: d209c5e$"
+GIT_COMMIT="$Sha1: 7f28406$"
 GIT_COMMIT_ONLY=$(cut -f 2 -d ' ' <<< $GIT_COMMIT | sed 's/\$//')
 
 GIT_CODEVERSION="$MYSELF $VERSION, $GIT_DATE_ONLY/$GIT_TIME_ONLY - $GIT_COMMIT_ONLY"
@@ -583,8 +583,8 @@ MSG_BACKUP_STARTED=85
 MSG_EN[$MSG_BACKUP_STARTED]="RBK0085I: Backup of type %s started. Please be patient."
 MSG_DE[$MSG_BACKUP_STARTED]="RBK0085I: Backuperstellung vom Typ %s gestartet. Bitte Geduld."
 MSG_RESTOREDEVICE_IS_PARTITION=86
-MSG_EN[$MSG_RESTOREDEVICE_IS_PARTITION]="RBK0086E: Restore device cannot be a partition."
-MSG_DE[$MSG_RESTOREDEVICE_IS_PARTITION]="RBK0086E: Wiederherstellungsgerät darf keine Partition sein."
+MSG_EN[$MSG_RESTOREDEVICE_IS_PARTITION]="RBK0086E: Restore device has trailing partition number but cannot be a partition."
+MSG_DE[$MSG_RESTOREDEVICE_IS_PARTITION]="RBK0086E: Wiederherstellungsgerät hat eine Partitionsnummer am Ende aber darf keine Partition sein."
 MSG_RESTORE_DIRECTORY_INVALID=87
 MSG_EN[$MSG_RESTORE_DIRECTORY_INVALID]="RBK0087E: Restore directory %s was not created by $MYNAME."
 MSG_DE[$MSG_RESTORE_DIRECTORY_INVALID]="RBK0087E: Wiederherstellungsverzeichnis %s wurde nicht von $MYNAME erstellt."
@@ -6330,6 +6330,7 @@ function doitRestore() {
 	fi
 
 	if ! (( $FAKE )); then
+		RESTORE_DEVICE=${RESTORE_DEVICE%/} # delete trailing /
 		if [[ ! ( $RESTORE_DEVICE =~ ^/dev/mmcblk[0-9]$ ) && ! ( $RESTORE_DEVICE =~ "/dev/loop" ) ]]; then
 			if ! [[ "$RESTORE_DEVICE" =~ ^/dev/[a-zA-Z]+$ ]] ; then
 				writeToConsole $MSG_LEVEL_MINIMAL $MSG_RESTOREDEVICE_IS_PARTITION
@@ -7020,7 +7021,6 @@ function usageEN() {
 	echo "Usage: $MYSELF [option]* {backupDirectory}"
 	echo ""
 	echo "-General options-"
-	echo "-A append logfile to eMail (default: ${NO_YES[$DEFAULT_APPEND_LOG]})"
 	[ -z "$DEFAULT_EMAIL" ] && DEFAULT_EMAIL="no"
 	echo "-b {dd block size} (default: $DEFAULT_DD_BLOCKSIZE)"
 	[ -z "$DEFAULT_DD_PARMS" ] && DEFAULT_DD_PARMS="no"
@@ -7071,7 +7071,6 @@ function usageDE() {
 	echo "Aufruf: $MYSELF [Option]* {Backupverzeichnis}"
 	echo ""
 	echo "-Allgemeine Optionen-"
-	echo "-A Logfile wird in eMail angehängt (Standard: ${NO_YES[$DEFAULT_APPEND_LOG]})"
 	[ -z "$DEFAULT_EMAIL" ] && DEFAULT_EMAIL="nein"
 	echo "-b {dd Blockgröße} (Standard: $DEFAULT_DD_BLOCKSIZE)"
 	[ -z "$DEFAULT_DD_PARMS" ] && DEFAULT_DD_PARMS="nein"
